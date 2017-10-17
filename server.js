@@ -7,12 +7,19 @@ var bodyParser = require("body-parser");
 var csvjson = require("csvjson");
 var json2xls = require('json2xls');
 const csv=require('csvtojson')
+var jsonfile = require('jsonfile')
+
 
 var ejs = require("ejs");
 
 
 app.set("view engine", "ejs");
-app.use(bodyParser.json());
+var jsonParser       = bodyParser.json({limit:1024*1024*40, type:'application/json'});
+var urlencodedParser = bodyParser.urlencoded({ extended:true,limit:1024*1024*20,type:'application/x-www-form-urlencoding' })
+
+app.use(jsonParser);
+app.use(urlencodedParser); 
+
 
 app.use(express.static("client"));
 app.set("views", path.join(__dirname,  "/client/views"));
@@ -32,57 +39,61 @@ app.get("/", function(req, res) {
 	res.render("index",{title:"insert a csv format"});
 });
 
-app.post("/", function(req, res ,next) {
-	var storage = multer.diskStorage({
-		destination: function(req, file, callback) {
-			callback(null, "./uploads");
-		},
-		filename: function(req, file, callback) {
-			callback(null, file.fieldname + "-" + Date.now() + path.extname(file.originalname));
-		}
-	});
-	
-	var upload = multer({
-		storage: storage,
-		fileFilter: function(req, file, callback) {
-			var ext = path.extname(file.originalname);
-			if (ext !== ".csv") {
-				res.render("index",{title:"Only CSV file is allowed"});
-				return
-			}
-			
-			callback(null, true);
-		}
-	}).single("userFile");
-	upload(req, res, function(err) {
-		res.render("index",{title:"File is uploaded"});
-	});
-});
 
 //app.post('/upload')
 app.post("/uploads",function(req,res,next){
+	
 	//console.log(req.body);
-	var csvData= req.body;
-	/*
-	{
-		delimiter : <String> optional default is ","
-		quote     : <String|Boolean> default is null
-	}
-	*/
-	var options = {
-	  delimiter : ',', // optional 
-	  quote     : '"' // optional 
-	};
-	// for multiple delimiter you can use regex pattern like this /[,|;]+/ 
+	
+	fs.writeFile(__dirname+"/uploads/post"+Math.random() * 1000 +".json", JSON.stringify(req.body), function(err) {
+		if(err) {
+		   return console.log(err);
+		}
+		
+	  res.sendStatus(200)
+		//res.json(req.body)
+		//console.log(' save file');
+		
+	  });
+	}) 
+ app.get("/uploads",function(req,res,next){
+	fs.readdir("uploads", function(err, filenames){
+		if(err){
+			console.log(err)
+		}
+		console.log(filenames[filenames.length-1])
+		var temp = filenames[filenames.length-1]
+		var data = fs.readFileSync(path.join("uploads/" +  temp), { encoding : "utf8"})
+	
+		res.json(JSON.parse(data))
+		res.sendStatus(201)
+	})
+	// var homedir = path.join(__dirname + "/uploads");
+	// var files = fs.readdirSync(homedir);
+	// var data = fs.readFileSync(path.join("uploads/" +  files[files.length-1]), { encoding : "utf8"});
+	// console.log(data)
+});	  
+	// var csvData= req.body;
+	// /*
+	// {
+	// 	delimiter : <String> optional default is ","
+	// 	quote     : <String|Boolean> default is null
+	// }
+	// */
+	// var options = {
+	//   delimiter : ',', // optional 
+	//   quote     : '"' // optional 
+	// };
+	// // for multiple delimiter you can use regex pattern like this /[,|;]+/ 
 	 
-	/* 
-	  for importing headers from different source you can use headers property in options 
-	  var options = {
-		headers : "sr,name,age,gender"
-	  };
-	*/
+	// /* 
+	//   for importing headers from different source you can use headers property in options 
+	//   var options = {
+	// 	headers : "sr,name,age,gender"
+	//   };
+	// */
 	 
-	console.log(csvjson.toObject(csvData, options));
+	// console.log(csvjson.toObject(csvData, options));
 	// var homedir = path.join(__dirname + "/uploads");
 	// var files = fs.readdirSync(homedir);
 	
@@ -96,12 +107,6 @@ app.post("/uploads",function(req,res,next){
 	// 	quote     : "\"" // optional
 	// };
 	// var arr = [];
-	// var originalProps =["ulCounter", "timestamp", "fcnt", "deui", "gw", "ftime", "ft2d", "etime", "snr", "rssi", "ant", "lsnr", "rssic", "rssis", "lat", "lon"]
-	// var dataForCheck = csvjson.toObject(data, options)
-	// var formatedData = Object.getOwnPropertyNames(dataForCheck[0])
-	// // console.log(originalProps )
-	//  //console.log(formatedData)
-
 	// var test = originalProps.filter(val => !formatedData.includes(val));
 	// console.log(test)
 	//  for(var temp of test){
@@ -118,34 +123,34 @@ app.post("/uploads",function(req,res,next){
 	
 	// }
 	
-});
-app.use(json2xls.middleware);
-app.post("/alldata",function(req,res,next){
-	var homedir = path.join(__dirname + "/uploads");
-	var files = fs.readdirSync(homedir);
-//console.log(files)
-	if(files.length == 0){
-	next()
-	}else{
-		var data = fs.readFileSync(path.join("uploads/" +  files[files.length-1]), { encoding : "utf8"});
+//});
+// app.use(json2xls.middleware);
+// app.post("/alldata",function(req,res,next){
+// 	var homedir = path.join(__dirname + "/uploads");
+// 	var files = fs.readdirSync(homedir);
+// //console.log(files)
+// 	if(files.length == 0){
+// 	next()
+// 	}else{
+// 		var data = fs.readFileSync(path.join("uploads/" +  files[files.length-1]), { encoding : "utf8"});
 		
-		console.log('here')
-		var options = {
-			delimiter : ',', // optional 
-			quote     : '"' // optional 
-		  };
+// 		console.log('here')
+// 		var options = {
+// 			delimiter : ',', // optional 
+// 			quote     : '"' // optional 
+// 		  };
 		   
-		  // for multiple delimiter you can use regex pattern like this /[,|;]+/ 
+// 		  // for multiple delimiter you can use regex pattern like this /[,|;]+/ 
 		   
-		 // csvjson.toArray(data, options);
-		  csvjson.toSchemaObject(data, options)
-		var xls = json2xls(csvjson.toSchemaObject(data, options));
-	//console.log(data)
+// 		 // csvjson.toArray(data, options);
+// 		  csvjson.toSchemaObject(data, options)
+// 		var xls = json2xls(csvjson.toSchemaObject(data, options));
+// 	//console.log(data)
 	
-	fs.writeFileSync('fake.xlsx', xls, 'binary');
-	}
+// 	fs.writeFileSync('fake.xlsx', xls, 'binary');
+// 	}
 	
-});
+// });
 
 
 

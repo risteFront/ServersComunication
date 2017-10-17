@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<link data-require="bootstrap-css@3.2.0" data-semver="3.2.0" rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"
+	/>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.2/angular.js"></script>
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
+	<link rel="stylesheet" href="styles.css" />
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.3/angular-ui-router.js"></script>
+	<script src="https://cdn.jsdelivr.net/alasql/0.3/alasql.min.js"></script>
+	<script src=smartTable.debug.js></script>
+	
+	<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+	<script type="text/javascript" src="table.js"></script>
+
+	<script type="text/javascript" src="pageSelect.js"></script>
+	<script type="text/javascript" src="dataTable.js"></script>
+	<script type="text/javascript" src="bower/csvtojson.js" ></script>
+</head>
+
+<body ng-app="myApp" ng-controller="mainCtrl">
+	<input type="file" id="fileUpload" class="btn btn-primary"/>
+	<input type="button" id="upload" value="Upload" class="btn btn-primary" />
+	<hr />
+	<div ui-view>
+		<form style="float:left;" id="uploadForm" enctype="multipart/form-data" method="post" action='/'>
+			<%= title %>
+				<!-- <a href="{{jsonUrl}}" download="download.json">download</a> -->
+		</form>
+		<div class="floatCSV">
+			<button class="btn btn-success" ng-click="saveFile()">Save XLSX file</button>
+			<button class="btn btn-success" ng-click="saveFile2()">Save XLSX file</button>
+
+		</div>
+	</div>
+	<div ng-controller="tableController">
+			<table id="example" class="display" width="100%"></table>
+	<div>
+</body>
+
+</html>

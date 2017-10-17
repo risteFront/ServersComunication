@@ -1,0 +1,28 @@
+.select-page {
+  width: 50px;
+  text-align: center;
+}
+.pagination li a input {
+  padding: 0;
+  margin: -5px 0;
+}
+.ovde{
+  left: 302px;
+  position: relative;
+  top: -35px;
+  
+}
+.uploads{
+  color: white;
+  text-decoration: none;
+}
+.uploads:hover{
+  color: white;
+  text-decoration: none;
+}
+.floatCSV{
+  top: 21px;
+  position: absolute;
+  left: 387px;
+  
+}
